@@ -18,6 +18,7 @@
 ### Application Development
 #### Backend
 1. Create Data Access Layers for DB interaction
+2. Create database interaction repositories
 #### Frontend
 
 ----

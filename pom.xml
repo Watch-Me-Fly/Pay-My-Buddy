@@ -74,6 +74,12 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.0.0</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -87,7 +93,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.36</version>
+<!--                            <version>1.18.36</version>-->
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -100,7 +106,7 @@
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.36</version>
+<!--                            <version>1.18.36</version>-->
                         </exclude>
                     </excludes>
                 </configuration>
