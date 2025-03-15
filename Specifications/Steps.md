@@ -10,6 +10,7 @@
 6. Database connection implementation
    * [Use Environment Variables for Credentials](https://github.com/Watch-Me-Fly/OC-PayMyBuddy/commit/fe99e70e608a273a55e737c253ca8201966bedba)
    * [Encrypt Communication](https://github.com/Watch-Me-Fly/OC-PayMyBuddy/commit/141a9179a398023b4608f7f26ed7ffc37d874817)
+   * [Enable logging for debug](https://github.com/Watch-Me-Fly/OC-PayMyBuddy/commit/9557a8d28061ceec621ef800a2f093cfbd08585f)
 ----
 ### Application Security
 
