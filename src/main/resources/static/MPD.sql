@@ -1,15 +1,6 @@
-# Pay My Buddy
-
-### MLD
-
-<img src="Specifications/MLD.png">
-
-------
-### MPD
-
-```SQL
 CREATE DATABASE PayMyBuddy;
 
+use PayMyBuddy;
 CREATE TABLE users (
              id INT AUTO_INCREMENT PRIMARY KEY,
              username VARCHAR(255) NOT NULL UNIQUE,
@@ -34,5 +25,3 @@ CREATE TABLE user_connections (
              FOREIGN KEY (user_id) REFERENCES users(id),
              FOREIGN KEY (connection_id) REFERENCES users(id)
 );
-```
--------
