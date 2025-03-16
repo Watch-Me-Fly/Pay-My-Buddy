@@ -31,6 +31,10 @@
     </properties>
     <dependencies>
 
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
         <!-- Spring Boot Core Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -93,7 +97,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-<!--                            <version>1.18.36</version>-->
+                            <version>1.18.36</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -106,7 +110,7 @@
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-<!--                            <version>1.18.36</version>-->
+                            <version>1.18.36</version>
                         </exclude>
                     </excludes>
                 </configuration>
