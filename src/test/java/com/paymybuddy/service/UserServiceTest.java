@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -21,6 +22,8 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 public class UserServiceTest {
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @Mock
     private UserRepository userRepository;
     @InjectMocks
@@ -168,6 +171,65 @@ public class UserServiceTest {
 
         assertThat(user.getConnections()).isEmpty();
         assertThat(user2.getConnections()).isEmpty();
+    }
+    // password __________________________________
+    @DisplayName("should hash password upon creating user")
+    @Test
+    public void testHashPassword() {
+        String hashedPassword = "HashedPassword";
+
+        when(passwordEncoder.encode(anyString()))
+                .thenReturn(hashedPassword);
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation ->
+                invocation.getArgument(0));
+
+        userService.signup(
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword());
+
+        verify(passwordEncoder).encode(user.getPassword());
+        verify(userRepository).save(
+                argThat(newUser ->
+                        !newUser.getPassword().equals(user.getPassword())
+                        && newUser.getPassword().equals(hashedPassword)
+        ));
+    }
+
+    @DisplayName("should hash password upon updating password")
+    @Test
+    public void testHashPasswordUpdate() {
+        String newPassword = "NewPassword";
+        String hashedPassword = "NewHashedPassword";
+        user.setId(1);
+
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(user));
+        when(passwordEncoder.encode(anyString()))
+                .thenReturn(hashedPassword);
+
+        userService.updatePassword(1, newPassword);
+
+        assertThat(user.getPassword()).isEqualTo(hashedPassword);
+        verify(passwordEncoder).encode(newPassword);
+        verify(userRepository).save(user);
+    }
+
+    @DisplayName("should validate password")
+    @Test
+    public void testCheckPassword() {
+        String password = user.getPassword();
+        String hashedPassword = "$2a$12$FYqf.0c9wqzwzlPElWP8iuGUDxk88r7PIw/ole73yJ2AzFxzrznqe";
+
+        when(passwordEncoder.matches(password, hashedPassword)).thenReturn(true);
+        when(passwordEncoder.matches("1234Password", hashedPassword)).thenReturn(false);
+
+        assertThat(userService.checkPassword(password, hashedPassword)).isTrue();
+        assertThat(userService.checkPassword("1234Password", hashedPassword)).isFalse();
+
+        verify(passwordEncoder, times(2)).matches(anyString(), eq(hashedPassword));
+
     }
 
 }
