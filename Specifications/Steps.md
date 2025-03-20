@@ -14,6 +14,7 @@
 ----
 ### Application Security
 1. Password hashing
+2. Login Authentication
 ----
 ### Application Development
 #### Backend
