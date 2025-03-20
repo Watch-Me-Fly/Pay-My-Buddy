@@ -69,6 +69,14 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public Optional<User> findConnection(Integer userId, Integer connectionId) {
+        return userRepository.findConnectionsByUserId(userId)
+                .stream()
+                .filter(connection ->
+                        connection.getId().equals(connectionId))
+                .findFirst();
+    }
+
     public Set<User> getAllConnections(Integer userId) {
         return userRepository.findConnectionsByUserId(userId);
     }
