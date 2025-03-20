@@ -5,7 +5,6 @@ import com.paymybuddy.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -17,7 +16,7 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     // create ____________________________________
     public void signup(String username, String email, String password) {
@@ -108,4 +107,14 @@ public class UserService {
         userRepository.save(connection);
     }
 
+    // password __________________________________
+    public void updatePassword(Integer userId, String newPassword) {
+        User user = getUserById(userId, "u");
+        String hashedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(hashedPassword);
+        userRepository.save(user);
+    }
+    public boolean checkPassword(String password, String hashedPassword) {
+        return passwordEncoder.matches(password, hashedPassword);
+    }
 }
