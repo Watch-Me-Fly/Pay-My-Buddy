@@ -34,7 +34,7 @@
                     <img src="./../assets/images/header.png" class="img-fluid" id="header" />
                 </div>
 
-                <form>
+                <form action="/users/signup" method="POST">
                     <div class="mb-3">
                         <label for="inputUsername" class="form-label">Nom d'utilisateur</label>
                         <input type="email" class="form-control" id="inputUsername" aria-describedby="emailHelp">
@@ -51,14 +51,14 @@
                     </div>
                     <div class="mb-3 d-flex justify-content-center ">
                         <input type="submit" value="S'inscrire" class="btn btn-primary my-3"
-                            onclick="location.href='pages/registration.html';" name="signup" />
+                               onclick="location.href='pages/signup.html';" name="signup" />
                     </div>
                 </form>
 
             </div>
 
             <!-- Return Link -->
-            <a href="./../index.html" id="returnLink" class="text-start mt-auto text-secondary text-opacity-50">
+            <a href="index.html" id="returnLink" class="text-start mt-auto text-secondary text-opacity-50">
                 &lt;&lt; Retourner à la page d'accueil
             </a>
 
