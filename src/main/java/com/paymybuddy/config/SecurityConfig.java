@@ -9,6 +9,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -17,33 +18,52 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // manage authorizations
+    // Manage authorizations
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // return http.build(); with a connection form
         return http
-                .authorizeHttpRequests(auth -> {
-                    // Allow anyone to sign up
-                    auth.requestMatchers("/register").permitAll();
-                    auth.requestMatchers("/user").hasRole("USER");
-                    // limit access if not connected
-                    auth.anyRequest().authenticated();
+                // .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> { auth
+                        // Public access ------------------------------------------
+                        .requestMatchers(
+                                "/assets/css/**",
+                                "/assets/js/**",
+                                "/assets/images/**",
+                                "/assets/icons/**").permitAll()
+                        // landing page
+                        .requestMatchers("/", "/index.html").permitAll()
+                        // allow anyone to signup or login
+                        .requestMatchers( "/signup.html", "/login.html").permitAll()
+                        // Restricted access  ------------------------------------
+                        .requestMatchers("/users/**", "/user/**").authenticated()
+                        // access profile only when logged-in
+                        .requestMatchers("/user/profile.html").authenticated()
+                        // get relations and transactions if logged-in
+                        .requestMatchers("/user/transactions.html", "/user/relations.html").authenticated()
+                        // limit access if not connected
+                        .anyRequest().authenticated();
                 })
                 // login
-                .formLogin(form -> form
+                .formLogin(login -> login
                         .loginPage("/login")
-                        .permitAll())
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/user/profile", true)
+                        .permitAll()
+                )
                 // logout
-                 .logout(logout ->
-                        logout.logoutUrl("/logout")
-                                .logoutSuccessUrl("/logout?true"))
-                .build();
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                    ).build();
     }
 
     // encrypt passwords
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 
     // manage authentifications
