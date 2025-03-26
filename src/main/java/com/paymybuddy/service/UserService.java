@@ -1,11 +1,12 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.model.User;
+import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 import java.util.Set;
@@ -16,7 +17,8 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final TransactionRepository transactionRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     // create ____________________________________
     public void signup(String username, String email, String password) {
@@ -89,10 +91,21 @@ public class UserService {
     }
 
     // delete __________________________________
+    @Transactional
     public void deleteUser(User user) {
+
         if (!userRepository.existsById(user.getId())) {
             throw new IllegalArgumentException("Utilisateur n'existe pas");
         }
+        // delete this user's transactions
+        transactionRepository.deleteAll(
+                transactionRepository.findByUser(user));
+        // delete the connections
+        Set<User> connections = getAllConnections(user.getId());
+        connections.forEach(connection -> {
+                   removeConnection(user.getId(), connection.getId());
+                   });
+        // delete the user
         userRepository.delete(user);
     }
 
