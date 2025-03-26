@@ -16,6 +16,7 @@
 1. Password hashing
 2. Login Authentication
 3. Page access and permissions
+4. Profile data update and delete
 ----
 ### Application Development
 #### Backend
