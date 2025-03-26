@@ -1,16 +1,19 @@
 package com.paymybuddy.service;
 
+import com.paymybuddy.model.Transaction;
 import com.paymybuddy.model.User;
+import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,9 +26,11 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private BCryptPasswordEncoder passwordEncoder;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private TransactionRepository transactionRepository;
     @InjectMocks
     private UserService userService;
 
@@ -138,11 +143,21 @@ public class UserServiceTest {
     @DisplayName("Should delete user")
     @Test
     public void testDeleteUser() {
+        // Arrange
         when(userRepository.existsById(user.getId())).thenReturn(true);
 
+        List<Transaction> transactions = new ArrayList<>();
+        when(transactionRepository.findByUser(user)).thenReturn(transactions);
+
+        Set<User> connections = new HashSet<>();
+        when(userService.getAllConnections(user.getId())).thenReturn(connections);
+
+        // Act
         userService.deleteUser(user);
 
-        verify(userRepository, times(1)).delete(user);
+        // Assert
+        verify(userRepository, times(1))
+                .delete(user);
     }
     @DisplayName("Should not find user to delete and throw exception")
     @Test

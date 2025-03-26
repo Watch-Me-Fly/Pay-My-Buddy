@@ -1,15 +1,17 @@
 package com.paymybuddy.config;
 
-import com.paymybuddy.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -18,68 +20,73 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
     // Manage authorizations
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                // .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> { auth
-                        // Public access ------------------------------------------
-                        .requestMatchers(
-                                "/assets/css/**",
-                                "/assets/js/**",
-                                "/assets/images/**",
-                                "/assets/icons/**").permitAll()
-                        // landing page
-                        .requestMatchers("/", "/index.html").permitAll()
-                        // allow anyone to signup or login
-                        .requestMatchers( "/signup.html", "/login.html").permitAll()
-                        // Restricted access  ------------------------------------
-                        .requestMatchers("/users/**", "/user/**").authenticated()
-                        // access profile only when logged-in
-                        .requestMatchers("/user/profile.html").authenticated()
-                        // get relations and transactions if logged-in
-                        .requestMatchers("/user/transactions.html", "/user/relations.html").authenticated()
-                        // limit access if not connected
-                        .anyRequest().authenticated();
-                })
-                // login
-                .formLogin(login -> login
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/user/profile", true)
-                        .permitAll()
-                )
-                // logout
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
-                    ).build();
+        logger.info("Security Filter Chain");
+         http
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> { auth
+                    // Public access ------------------------------------------
+                    .requestMatchers(
+                            "/assets/css/**",
+                            "/assets/js/**",
+                            "/assets/images/**",
+                            "/assets/icons/**").permitAll()
+                    // landing page
+                    .requestMatchers("/", "/index.html").permitAll()
+                    // allow anyone to signup or login
+                     .requestMatchers( "/signup", "/login").permitAll()
+                     .requestMatchers( "/signup.html", "/login.html").permitAll()
+                    // Restricted access  ------------------------------------
+                    .requestMatchers("/users/**", "/user/**").authenticated()
+                    // access profile only when logged-in
+                     .requestMatchers("/user/profile.html").authenticated()
+                    // get relations and transactions if logged-in
+                    .requestMatchers("/user/transactions.html", "/user/relations.html").authenticated()
+                    // limit access if not connected
+                    .anyRequest().authenticated();
+            })
+
+            // login
+             .formLogin(form -> form
+                     .loginPage("/login")
+                     .loginProcessingUrl("/login")
+                     .defaultSuccessUrl("/user/profile.html")
+                     .permitAll()
+             )
+            // logout
+            .logout(logout -> logout
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
+                    .permitAll()
+            );
+
+        return http.build();
     }
 
     // encrypt passwords
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
+        logger.info("Password Encoder");
+        return new BCryptPasswordEncoder();
     }
 
     // manage authentifications
     @Bean
     public AuthenticationManager authenticationManager(
-            CustomUserDetailsService customUserDetailService,
-            HttpSecurity http,
+            UserDetailsService userDetailsService,
             BCryptPasswordEncoder bCryptPasswordEncoder) throws Exception {
 
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(bCryptPasswordEncoder);
 
-        authenticationManagerBuilder
-                .userDetailsService(customUserDetailService)
-                .passwordEncoder(bCryptPasswordEncoder);
-
-        return authenticationManagerBuilder.build();
+        return new ProviderManager(authProvider);
     }
+
 }

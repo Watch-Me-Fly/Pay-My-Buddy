@@ -2,7 +2,7 @@ package com.paymybuddy.service;
 
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,22 +13,30 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
-        Optional<User> user = userRepository.findByUsername(username);
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        log.info("entered loadUserByUsername");
+
+        Optional<User> user = userRepository.findByEmail(email);
+
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }
         return new org.springframework.security.core.userdetails.User(
-                user.get().getUsername(),
+                user.get().getEmail(),
                 user.get().getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
+
+
     }
 }
