@@ -28,7 +28,7 @@ public class CustomAuthenticationHandler implements AuthenticationFailureHandler
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("ERROR", "Adresse mail ou mot de passe invalid");
+        errorResponse.put("error", "Adresse mail ou mot de passe invalid");
 
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }
