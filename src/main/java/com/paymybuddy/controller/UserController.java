@@ -1,6 +1,7 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.model.User;
+import com.paymybuddy.model.UserProfileDTO;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,10 @@ public class UserController {
     // create ____________________________________
     // signup a new user
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody User user) {
+    public ResponseEntity<String> signup(@RequestBody UserProfileDTO user) {
+        if (user.getUsername() == null || user.getPassword() == null || user.getEmail() == null) {
+            return ResponseEntity.badRequest().body("Données invalides");
+        }
         userService.signup(
                 user.getUsername(),
                 user.getEmail(),
