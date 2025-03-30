@@ -27,7 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
            return response.json();
         })
         .then(data => {
-            console.log(`Fetched User Data: ${data}`);
             usernameField.value = data.username;
             emailField.value = data.email;
         })
@@ -90,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Erreur lors de la mise à jour du profil.');
+                throw new Error('Profile update error');
             }
             messageBox('SUCCESS', 'Profil mis à jour avec succès !');
             disableEditing();
@@ -123,42 +122,3 @@ document.addEventListener("DOMContentLoaded", () => {
         alertBox.classList.add(type === 'SUCCESS' ? 'alert-success' : 'alert-danger');
     }
 });
-
-/*
-    // -------------------------
-    // delete account
-    // -------------------------
-    deleteAccount.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        if (confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.'))
-        {
-            fetch("/api/user/profile", {
-                method: 'DELETE',
-                headers: {"Content-Type": "application/json"},
-            })
-            .then(response => {
-                if (!response.ok) {
-                    messageType = 'FAIL';
-                    resultMessage = 'Erreur à la suppression du compte';
-                    throw new Error(`HTTP error. Status: ${response.status}`);
-                }
-                return response.text();
-            })
-            // delete the account and go back to main page
-            .then(data => {
-                console.log(`Account deleted`);
-                messageType = 'SUCCESS';
-                resultMessage = 'Compte supprimé';
-                window.location.href = "/";
-            })
-            .catch(error => {
-                console.error(`Error deleting profile: ${error}`);
-                messageType = 'FAIL';
-                resultMessage = 'Suppression du compte a échoué';
-            })
-        }
-    })
-
-
- */

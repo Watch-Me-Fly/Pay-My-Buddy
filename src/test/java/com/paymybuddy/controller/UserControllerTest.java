@@ -2,6 +2,7 @@ package com.paymybuddy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paymybuddy.model.User;
+import com.paymybuddy.model.UserProfileDTO;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -118,9 +119,9 @@ public class UserControllerTest {
     @Test
     public void testGetAllConnections() throws Exception {
         int id = user1.getId();
-        Set<User> connections = new HashSet<>();
-        connections.add(user1);
-        connections.add(user2);
+        Set<UserProfileDTO> connections = new HashSet<>();
+        connections.add(new UserProfileDTO(user1.getUsername(), user1.getEmail(), user1.getPassword()));
+        connections.add(new UserProfileDTO(user2.getUsername(), user2.getEmail(), user2.getPassword()));
 
         when(mockUserService.getAllConnections(id)).thenReturn(connections);
 
@@ -174,6 +175,7 @@ public class UserControllerTest {
     public void testDeleteConnection() throws Exception {
         // mock users
         int userId = user1.getId();
+        String connectionEmail = user2.getEmail();
         int connectionId = user2.getId();
 
         when(mockUserRepository.findById(userId))
@@ -188,7 +190,7 @@ public class UserControllerTest {
 
         when(mockUserRepository.findConnectionsByUserId(userId))
                 .thenReturn(connections);
-        when(mockUserService.findConnection(userId, connectionId))
+        when(mockUserService.findConnection(userId, connectionEmail))
                 .thenReturn(Optional.of(user2));
 
         // act

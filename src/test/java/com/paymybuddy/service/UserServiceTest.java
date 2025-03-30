@@ -2,6 +2,7 @@ package com.paymybuddy.service;
 
 import com.paymybuddy.model.Transaction;
 import com.paymybuddy.model.User;
+import com.paymybuddy.model.UserProfileDTO;
 import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -149,8 +150,19 @@ public class UserServiceTest {
         List<Transaction> transactions = new ArrayList<>();
         when(transactionRepository.findByUser(user)).thenReturn(transactions);
 
+        User connection1 = new User();
+        connection1.setId(2);
+        User connection2 = new User();
+        connection2.setId(3);
         Set<User> connections = new HashSet<>();
-        when(userService.getAllConnections(user.getId())).thenReturn(connections);
+        connections.add(connection1);
+        connections.add(connection2);
+        user.setConnections(connections);
+
+        User otherUser = new User();
+        otherUser.setId(4);
+        otherUser.setConnections(new HashSet<>(Collections.singletonList(user)));
+        when(userRepository.findAll()).thenReturn(Arrays.asList(user, otherUser));
 
         // Act
         userService.deleteUser(user);

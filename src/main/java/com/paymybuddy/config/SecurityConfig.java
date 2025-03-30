@@ -21,7 +21,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
-    private final CustomAuthenticationHandler customAuthenticationHandler = new CustomAuthenticationHandler();
+    private final CustomFailureAuthenticationHandler failHandler = new CustomFailureAuthenticationHandler();
+    private final CustomSuccessAuthenticationHandler successHandler = new CustomSuccessAuthenticationHandler();
 
     // Manage authorizations
     @Bean
@@ -58,7 +59,8 @@ public class SecurityConfig {
                      .defaultSuccessUrl("/user/profile.html")
                      .permitAll()
                      // for a more user-friendly feedback behaviour
-                     .failureHandler(customAuthenticationHandler)
+                     .failureHandler(failHandler)
+                     .successHandler(successHandler)
              )
             // logout
             .logout(logout -> logout
