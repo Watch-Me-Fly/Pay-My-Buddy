@@ -40,7 +40,7 @@ public class ProfileRestController {
     }
 
     @PostMapping("/profile")
-    public ResponseEntity<String> updateProfile(@RequestBody User user, Principal principal) {
+    public ResponseEntity<String> updateProfile(@RequestBody UserProfileDTO user, Principal principal) {
         log.info("Received POST request for profile");
 
         ResponseEntity<?> response = findUser(principal);

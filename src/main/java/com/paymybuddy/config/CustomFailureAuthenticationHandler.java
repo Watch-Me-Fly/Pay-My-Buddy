@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class CustomAuthenticationHandler implements AuthenticationFailureHandler {
+public class CustomFailureAuthenticationHandler implements AuthenticationFailureHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
