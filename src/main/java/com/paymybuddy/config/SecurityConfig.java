@@ -21,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+    private final CustomAuthenticationHandler customAuthenticationHandler = new CustomAuthenticationHandler();
 
     // Manage authorizations
     @Bean
@@ -38,7 +39,7 @@ public class SecurityConfig {
                     // landing page
                     .requestMatchers("/", "/index.html").permitAll()
                     // allow anyone to signup or login
-                     .requestMatchers( "/signup", "/login").permitAll()
+                     .requestMatchers( "/users/signup", "/login").permitAll()
                      .requestMatchers( "/signup.html", "/login.html").permitAll()
                     // Restricted access  ------------------------------------
                     .requestMatchers("/users/**", "/user/**").authenticated()
@@ -56,6 +57,8 @@ public class SecurityConfig {
                      .loginProcessingUrl("/login")
                      .defaultSuccessUrl("/user/profile.html")
                      .permitAll()
+                     // for a more user-friendly feedback behaviour
+                     .failureHandler(customAuthenticationHandler)
              )
             // logout
             .logout(logout -> logout
