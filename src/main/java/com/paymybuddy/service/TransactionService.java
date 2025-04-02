@@ -1,6 +1,7 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.TransactionDTO;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.repository.UserRepository;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,43 +54,30 @@ public class TransactionService {
         return transactionRepository.findById(transactionId);
     }
 
-    public List<Transaction> getTransactionByUser(String username, String u) {
+    public List<TransactionDTO> getTransactionsByUser(int id) {
+        // get user and username
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
-        Optional<User> user = userRepository.findByUsername(username);
+        // get user's transactions
+        List<Transaction> transactions = transactionRepository.findByUser(user);
 
-        if (user.isPresent()) {
+        // turn them to DTOs
+        List<TransactionDTO> transactionDTOS = new ArrayList<>();
 
-            return switch (u) {
-                case "s" -> transactionRepository.findBySender(user.get());
-                case "r" -> transactionRepository.findByReceiver(user.get());
-                default -> transactionRepository.findByUser(user.get());
-            };
+        for (Transaction transaction : transactions) {
+            String connectionName = transaction.getSender().equals(user) ?
+                    transaction.getReceiver().getUsername() :
+                    transaction.getSender().getUsername();
+
+            transactionDTOS.add(new TransactionDTO(
+                    transaction.getId(),
+                    connectionName,
+                    transaction.getDescription(),
+                    transaction.getAmount()));
         }
-        else {
-            throw new RuntimeException("User not found");
-        }
-    }
-
-    public List<Transaction> getTransactionBetweenTwoUsers(String sender, String receiver) {
-
-        Optional<User> user1 = userRepository.findByUsername(sender);
-        Optional<User> user2 = userRepository.findByUsername(receiver);
-
-        if (user1.isPresent() && user2.isPresent()) {
-            return transactionRepository.findBySenderAndReceiver(user1.get(), user2.get());
-        }
-        else
-        {
-            throw new RuntimeException("Un ou tout les utilisateurs n'ont pas été trouvés");
-        }
-    }
-
-    public List<Transaction> getTransactionBetween2Users(Integer senderId, Integer receiverId) {
-
-        User sender = getUserById(senderId, "s");
-        User receiver = getUserById(receiverId,"r");
-
-        return transactionRepository.findBySenderAndReceiver(sender, receiver);
+        return transactionDTOS;
     }
 
     // update __________________________________

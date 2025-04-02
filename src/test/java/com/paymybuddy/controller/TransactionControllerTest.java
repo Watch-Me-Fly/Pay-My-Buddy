@@ -2,6 +2,7 @@ package com.paymybuddy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.TransactionDTO;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.service.TransactionService;
@@ -122,36 +123,21 @@ public class TransactionControllerTest {
         verify(mockTransactionService, times(1)).getTransaction(senderId);
     }
 
-    @DisplayName("get transactions between 2 users")
-    @Test
-    void testGetTransactionsBetween2Users() throws Exception {
-        String userA = user1.getUsername();
-        String userB = user2.getUsername();
-        List<Transaction> transactions = List.of(transaction1, transaction2);
-
-        when(mockTransactionService.getTransactionBetweenTwoUsers(anyString(), anyString()))
-                .thenReturn(transactions);
-
-        mockMvc.perform(get("/transactions/between/{user1}/{user2}", userA, userB))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(transactions)));
-
-        verify(mockTransactionService, times(1))
-                .getTransactionBetweenTwoUsers(userA, userB);
-    }
-
     @DisplayName("get transactions for a given user")
     @Test
     void testGetTransactionsByUser() throws Exception {
-        List<Transaction> transactions = List.of(transaction1, transaction2);
+        TransactionDTO transactionDTO1 = new TransactionDTO(1, user2.getUsername(), null, BigDecimal.valueOf(100.0));
+        TransactionDTO transactionDTO2 = new TransactionDTO(2, user1.getUsername(), null, BigDecimal.valueOf(250.0));
 
-        when(mockTransactionService.getTransactionByUser(anyString(), anyString())).thenReturn(transactions);
+        List<TransactionDTO> transactionsDTO = List.of(transactionDTO1, transactionDTO2);
 
-        mockMvc.perform(get("/transactions/{username}/{u}", user1.getUsername(), "u"))
+        when(mockTransactionService.getTransactionsByUser(anyInt())).thenReturn(transactionsDTO);
+
+        mockMvc.perform(get("/transactions/user/{userId}", user1.getId()))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(transactions)));
+                .andExpect(content().json(objectMapper.writeValueAsString(transactionsDTO)));
 
-        verify(mockTransactionService, times(1)).getTransactionByUser(user1.getUsername(), "u");
+        verify(mockTransactionService, times(1)).getTransactionsByUser(user1.getId());
     }
 
     @DisplayName("update details of a transaction")
