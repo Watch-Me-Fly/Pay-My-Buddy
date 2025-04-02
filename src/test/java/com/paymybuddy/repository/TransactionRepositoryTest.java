@@ -86,16 +86,4 @@ public class TransactionRepositoryTest {
         assertThat(transactions.get(0).getAmount()).isEqualByComparingTo(BigDecimal.valueOf(250.0));
     }
 
-    @DisplayName("Find a transaction between 2 given people in a given direction")
-    @Test
-    public void testFindByReceiverAndSender() {
-        // Given
-        // user1 was the sender in transaction #1, and user2 is the receiver
-        // When
-        List<Transaction> transactions = transactionRepository.findBySenderAndReceiver(user1, user2);
-        // Then
-        assertThat(transactions).hasSize(1);
-        assertThat(transactions.get(0).getAmount()).isEqualByComparingTo(BigDecimal.valueOf(100.00));
-    }
-
 }

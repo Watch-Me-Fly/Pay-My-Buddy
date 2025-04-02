@@ -1,0 +1,12 @@
+#mainLightBox {
+    height: 80vh;
+    width: 30%;
+}
+
+#logo {
+    height: 100px;
+}
+
+.nav-link:hover {
+    color: #FFAB5B;
+}

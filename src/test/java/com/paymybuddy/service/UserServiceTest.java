@@ -1,15 +1,20 @@
 package com.paymybuddy.service;
 
+import com.paymybuddy.model.Transaction;
 import com.paymybuddy.model.User;
+import com.paymybuddy.model.UserProfileDTO;
+import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,7 +27,11 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @Mock
+    private BCryptPasswordEncoder passwordEncoder;
+    @Mock
     private UserRepository userRepository;
+    @Mock
+    private TransactionRepository transactionRepository;
     @InjectMocks
     private UserService userService;
 
@@ -135,11 +144,32 @@ public class UserServiceTest {
     @DisplayName("Should delete user")
     @Test
     public void testDeleteUser() {
+        // Arrange
         when(userRepository.existsById(user.getId())).thenReturn(true);
 
+        List<Transaction> transactions = new ArrayList<>();
+        when(transactionRepository.findByUser(user)).thenReturn(transactions);
+
+        User connection1 = new User();
+        connection1.setId(2);
+        User connection2 = new User();
+        connection2.setId(3);
+        Set<User> connections = new HashSet<>();
+        connections.add(connection1);
+        connections.add(connection2);
+        user.setConnections(connections);
+
+        User otherUser = new User();
+        otherUser.setId(4);
+        otherUser.setConnections(new HashSet<>(Collections.singletonList(user)));
+        when(userRepository.findAll()).thenReturn(Arrays.asList(user, otherUser));
+
+        // Act
         userService.deleteUser(user);
 
-        verify(userRepository, times(1)).delete(user);
+        // Assert
+        verify(userRepository, times(1))
+                .delete(user);
     }
     @DisplayName("Should not find user to delete and throw exception")
     @Test
@@ -168,6 +198,65 @@ public class UserServiceTest {
 
         assertThat(user.getConnections()).isEmpty();
         assertThat(user2.getConnections()).isEmpty();
+    }
+    // password __________________________________
+    @DisplayName("should hash password upon creating user")
+    @Test
+    public void testHashPassword() {
+        String hashedPassword = "HashedPassword";
+
+        when(passwordEncoder.encode(anyString()))
+                .thenReturn(hashedPassword);
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation ->
+                invocation.getArgument(0));
+
+        userService.signup(
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword());
+
+        verify(passwordEncoder).encode(user.getPassword());
+        verify(userRepository).save(
+                argThat(newUser ->
+                        !newUser.getPassword().equals(user.getPassword())
+                        && newUser.getPassword().equals(hashedPassword)
+        ));
+    }
+
+    @DisplayName("should hash password upon updating password")
+    @Test
+    public void testHashPasswordUpdate() {
+        String newPassword = "NewPassword";
+        String hashedPassword = "NewHashedPassword";
+        user.setId(1);
+
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(user));
+        when(passwordEncoder.encode(anyString()))
+                .thenReturn(hashedPassword);
+
+        userService.updatePassword(1, newPassword);
+
+        assertThat(user.getPassword()).isEqualTo(hashedPassword);
+        verify(passwordEncoder).encode(newPassword);
+        verify(userRepository).save(user);
+    }
+
+    @DisplayName("should validate password")
+    @Test
+    public void testCheckPassword() {
+        String password = user.getPassword();
+        String hashedPassword = "$2a$12$FYqf.0c9wqzwzlPElWP8iuGUDxk88r7PIw/ole73yJ2AzFxzrznqe";
+
+        when(passwordEncoder.matches(password, hashedPassword)).thenReturn(true);
+        when(passwordEncoder.matches("1234Password", hashedPassword)).thenReturn(false);
+
+        assertThat(userService.checkPassword(password, hashedPassword)).isTrue();
+        assertThat(userService.checkPassword("1234Password", hashedPassword)).isFalse();
+
+        verify(passwordEncoder, times(2)).matches(anyString(), eq(hashedPassword));
+
     }
 
 }

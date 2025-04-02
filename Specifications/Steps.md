@@ -13,13 +13,17 @@
    * [Enable logging for debug](https://github.com/Watch-Me-Fly/OC-PayMyBuddy/commit/9557a8d28061ceec621ef800a2f093cfbd08585f)
 ----
 ### Application Security
-
+1. Password hashing
+2. Login Authentication
+3. Page access and permissions
+4. Profile data update and delete
 ----
 ### Application Development
 #### Backend
 1. Create Data Access Layers for DB interaction
 2. Create database interaction repositories
 3. Implement business logic in services
+4. Implement API endpoints
 #### Frontend
 
 ----

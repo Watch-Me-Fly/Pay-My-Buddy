@@ -1,8 +1,11 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.model.User;
+import com.paymybuddy.model.UserProfileDTO;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.service.UserService;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -24,7 +28,10 @@ public class UserController {
     // create ____________________________________
     // signup a new user
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody User user) {
+    public ResponseEntity<String> signup(@RequestBody UserProfileDTO user) {
+        if (user.getUsername() == null || user.getPassword() == null || user.getEmail() == null) {
+            return ResponseEntity.badRequest().body("Données invalides");
+        }
         userService.signup(
                 user.getUsername(),
                 user.getEmail(),
@@ -59,13 +66,68 @@ public class UserController {
     }
     // get all connections
     @GetMapping("/{id}/connections")
-    public ResponseEntity<Set<User>> getAllConnections(@PathVariable Integer id) {
-        Set<User> connections = userService.getAllConnections(id);
+    public ResponseEntity<Set<UserProfileDTO>> getAllConnections(@PathVariable Integer id) {
+
+        log.info("getAllConnections id: {}", id);
+        Set<UserProfileDTO> connections = userService.getAllConnections(id);
+
         if (connections.isEmpty()) {
+            log.debug("connections list is empty");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } else {
+            log.info("connections list contains {} connections", connections.size());
             return ResponseEntity.ok(connections);
         }
+    }
+    // get a specific connection when authenticated
+    @GetMapping("/connection/{email}")
+    public ResponseEntity<UserProfileDTO> findConnectionByEmail(HttpSession session, @PathVariable String email) {
+        log.info("find connection by email: {}", email);
+        // find connected user by session email
+        if (session.getAttribute("email") == null) {
+            log.error("user is null");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        String sessionEmail = session.getAttribute("email").toString();
+        Optional<User> connectedUser = userService.findByEmail(sessionEmail);
+        if (connectedUser.isEmpty()) {
+            log.error("user not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        // search in this user's connections
+        int id = connectedUser.get().getId();
+        Optional<User> connection = userService.findConnection(id, email);
+        if (connection.isEmpty()) {
+            log.error("no connection found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        // return results as DTO
+        UserProfileDTO foundConnection = new UserProfileDTO(
+                connection.get().getUsername(),
+                connection.get().getEmail(),
+                null);
+        return ResponseEntity.ok(foundConnection);
+    }
+    // get the user's data by email from the session
+    @GetMapping("/email")
+    public ResponseEntity<User> findByEmailFromSession(HttpSession session) {
+        String email = (String) session.getAttribute("email");
+        if (email == null) {
+            log.debug("email is empty");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // todo
+        }
+        Optional<User> connectedUser = userService.findByEmail(email);
+        if (connectedUser.isEmpty()) {
+            log.debug("user not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(connectedUser.get());
+    }
+    @GetMapping("/find/{email}")
+    public ResponseEntity<User> findByEmail(@PathVariable String email) {
+        Optional<User> find = userService.findByEmail(email);
+        return find.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
     // update ____________________________________
     @PutMapping
@@ -104,13 +166,18 @@ public class UserController {
         if (validateResponse != null) {
             return validateResponse;
         }
-        // check that a connection between both users exist
-        if (userService.findConnection(userId, connectionId).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Pas de lien entre les 2 utilisateurs trouvé");
+        // find connection's email
+        Optional<User> connection = userRepository.findById(connectionId);
+        if (connection.isPresent()) {
+            String email = connection.get().getEmail();
+            // check that a connection between both users exist
+            if (userService.findConnection(userId, email).isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Pas de lien entre les 2 utilisateurs trouvé");
+            }
+            // remove the connection
+            userService.removeConnection(userId, connectionId);
         }
-        // remove the connection
-        userService.removeConnection(userId, connectionId);
         return ResponseEntity.ok("Connexion supprimée");
     }
 
