@@ -24,8 +24,9 @@
 2. Create database interaction repositories
 3. Implement business logic in services
 4. Implement API endpoints
+5. Pages
 #### Frontend
-
+1. HTML, CSS, and Scripts
 ----
 ### Testing & Debugging
 
