@@ -1,6 +1,7 @@
 package com.paymybuddy.controller;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.TransactionDTO;
 import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +47,9 @@ public class TransactionController {
         return transactionService.getTransaction(id);
     }
 
-    @GetMapping("/between/{user1}/{user2}")
-    public List<Transaction> getTransactionsBetween2Users(@PathVariable("user1") String user1, @PathVariable("user2") String user2) {
-        return transactionService.getTransactionBetweenTwoUsers(user1, user2);
-    }
-
-    @GetMapping("/{username}/{u}")
-    public List<Transaction> getTransactionsByUser(@PathVariable String username, @PathVariable String u) {
-        return transactionService.getTransactionByUser(username, u);
+    @GetMapping("/user/{id}")
+    public List<TransactionDTO> getTransactionsByUser(@PathVariable int id) {
+        return transactionService.getTransactionsByUser(id);
     }
 
     // update ____________________________________

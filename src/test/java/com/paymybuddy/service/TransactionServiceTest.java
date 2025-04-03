@@ -1,6 +1,7 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.TransactionDTO;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.repository.UserRepository;
@@ -86,31 +87,13 @@ public class TransactionServiceTest {
     @DisplayName("Should retrieve transactions belonging to a user")
     @Test
     public void testGetTransactionByUser() {
-        when(userRepository.findByUsername("Malick")).thenReturn(Optional.of(user1));
+        when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1));
         when(transactionRepository.findByUser(user1)).thenReturn(List.of(transaction1, transaction2));
 
-        List<Transaction> transactions = transactionService.getTransactionByUser("Malick", "u");
+        List<TransactionDTO> transactions = transactionService.getTransactionsByUser(1);
 
         assertThat(transactions).hasSize(2);
-        assertThat(transactions.get(0)).isEqualTo(transaction1);
-    }
-
-    @DisplayName("Should get a transaction between sender and receiver")
-    @Test
-    public void testGetTransactionBetweenTwoUsers() {
-        when(userRepository.findByUsername(user1.getUsername()))
-                .thenReturn(Optional.of(user1));
-        when(userRepository.findByUsername(user2.getUsername()))
-                .thenReturn(Optional.of(user2));
-        when(transactionRepository.findBySenderAndReceiver(user1, user2))
-                .thenReturn(List.of(transaction1));
-
-        List<Transaction> transactions = transactionService.getTransactionBetweenTwoUsers(
-                user1.getUsername(),
-                user2.getUsername());
-
-        assertThat(transactions).hasSize(1);
-        assertThat(transactions.get(0)).isEqualTo(transaction1);
+        assertThat(transactions.get(0).getConnectionName()).isEqualTo(user2.getUsername());
     }
 
     // update ____________________________________
