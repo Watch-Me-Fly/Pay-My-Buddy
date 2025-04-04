@@ -1,0 +1,318 @@
+{
+	"info": {
+		"_postman_id": "2302a6d2-0cb9-438f-bf26-204b73258d71",
+		"name": "PayMyBuddy API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "41932345"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "➕ Create",
+					"item": [
+						{
+							"name": "Create a new user",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\" : \"saja\",\n    \"email\" : \"saja@email.fr\",\n    \"password\" : \"mdp-saja\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/users/signup"
+							},
+							"response": []
+						},
+						{
+							"name": "Create connection between 2 users",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/users/add/7/connections/6"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "📖 Read",
+					"item": [
+						{
+							"name": "Get user by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/users/id/3"
+							},
+							"response": []
+						},
+						{
+							"name": "Get user by email",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/users/find/John@exemple.fr"
+							},
+							"response": []
+						},
+						{
+							"name": "Get connected user data from session",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/users/email"
+							},
+							"response": []
+						},
+						{
+							"name": "List all connections",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/users/3/connections"
+							},
+							"response": []
+						},
+						{
+							"name": "Find a specific connection",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/users/connection/Sara@exemple.fr"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "📝 Update",
+					"item": [
+						{
+							"name": "Update user info",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\" : 3,\n    \"username\" : \"Martin\", \n    \"email\" : \"martin2@email.fr\",\n    \"password\" : \"123-martin\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/users"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "❌ Delete",
+					"item": [
+						{
+							"name": "Delete user by username",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "http://localhost:8080/users/martin"
+							},
+							"response": []
+						},
+						{
+							"name": "Remove connection",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": "http://localhost:8080/users/delete/3/connections/1"
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "➕ Create",
+					"item": [
+						{
+							"name": "Create a new transaction",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\" : 5,\n    \"connectionName\" : \"Alice\",\n    \"description\" : \"New transaction\",\n    \"amount\" : 60\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/transactions"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "📖 Read",
+					"item": [
+						{
+							"name": "Get transaction by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/transactions/2"
+							},
+							"response": []
+						},
+						{
+							"name": "Get all transactions of a user",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/transactions/user/3"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "📝 Update",
+					"item": [
+						{
+							"name": "Update a transaction",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\" : 2,\n    \"sender\" : \n        { \"id\" : 3 },\n    \"receiver\" : \n        { \"id\" : 1 },\n    \"description\" : \"Gaz\",\n    \"amount\" : 300.00\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/transactions"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "❌ Delete",
+					"item": [
+						{
+							"name": "Delete a transaction",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "http://localhost:8080/transactions/2"
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "📖 Read",
+					"item": [
+						{
+							"name": "Get logged-in user's profile",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/api/user/profile"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "✏️ Update",
+					"item": [
+						{
+							"name": "Update logged-in user's profile",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\" : \"Martin2@email.fr\",\n    \"password\" : \"\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/api/user/profile"
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Log in",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "martin@exemple.fr",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "mdp-Martin",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost:8080/login"
+			},
+			"response": []
+		}
+	]
+}
